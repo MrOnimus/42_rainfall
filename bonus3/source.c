@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int main(char argc, char **argv)
+int main(int argc, char **argv)
 {
     FILE *f;
     int int_arr[16];
