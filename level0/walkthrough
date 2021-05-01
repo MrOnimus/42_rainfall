@@ -4,7 +4,7 @@ Hardcoded password in disassembled code.
 
 # How do we exploit it?
 
-So, we've started this project, and we see the first binary. Let's try to analyze it using the tools we already know. 
+So, we've started this project, and we see the first binary. Let's try to analyze it using the tools we already know.
 
     level0@RainFall:~$ ltrace ./level0
     ltrace: Couldn't find .dynsym or .dynstr in "./level0"

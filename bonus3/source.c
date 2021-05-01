@@ -7,7 +7,7 @@ int main(int argc, char **argv)
     int int_arr[16];
     char arr[66];
     int num;
-    
+
     f = fopen("/home/user/end/.pass", "r");
     for (int i = 0; i < 33; i++) {
         int_arr[i] = 0;

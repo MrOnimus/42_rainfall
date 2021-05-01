@@ -6,7 +6,7 @@ int language;
 void greetuser(char *ptr)
 {
     char buf[72];
-    
+
     if (language == 1) {
         strcpy(buf, "Goedemiddag! ");
     } else if (language == 2) {

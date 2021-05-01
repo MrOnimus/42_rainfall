@@ -5,7 +5,7 @@ int main(int argc, char **argv)
 {
     char arr[40];
     int num;
-    
+
     num = atoi(argv[1]);
     if (num < 10) {
         memcpy(arr, argv[2], num * 4);

