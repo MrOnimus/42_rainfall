@@ -1,1 +1,20 @@
-cat <(python -c 'print "\x08\x04\x98\x38"[::-1] + "%134513824d" + "%4$n"') - | ./level5
+# What do we exploit?
+
+GOT `printf` vulnerability to the format string attack.
+
+# How do we exploit it?
+
+We have only one invocation in `main` function, and that's invocation of function `n`. In function `n` we can see invocation of safe `fgets@plt`, which we cannot exploit, then invocation of `printf@plt`, and then invocation of `exit@plt`. All of them have `@plt` ending. What does it mean? To answer that question you definitely should check out this [topic](https://reverseengineering.stackexchange.com/questions/1992/what-is-plt-got). Actually it means, that if the `exit` function is in the `GOT`, then we can rewrite its address with any address we want, because GOT [is writable](https://ctf101.org/binary-exploitation/what-is-the-got/).
+
+The thing is we can rewrite the invocation of `exit` with invocation of `o` function we're very interested in [like so](https://www.exploit-db.com/papers/13203). To do that we can rewrite address of the `exit` function with address of the `o` function represented like a decimal number.
+
+We can get address of `exit` function in GOT and address of `o` function using utility `objdump` like that:
+
+    objdump -d -m i386 ./level5
+
+Now we surely can create the exploit string, constructing in like we suggested above:
+
+    cat <(python -c 'print "\x08\x04\x98\x38"[::-1] + "%134513824d" + "%4$n"') - | ./level5
+
+The execution of this code gives us, as expected, access to the shell. Now we can get the password to the next level, as we've done it on the previous levels. Password we've got: `d3b7bf1025225bd715fa8ccb54ef06ca70b9125ac855aeab4878217177f41a31`.
+

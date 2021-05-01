@@ -1,0 +1,38 @@
+# What do we exploit?
+
+Hardcoded password in disassembled code.
+
+# How do we exploit it?
+
+So, we've started this project, and we see the first binary. Let's try to analyze it using the tools we already know. 
+
+    level0@RainFall:~$ ltrace ./level0
+    ltrace: Couldn't find .dynsym or .dynstr in "./level0"
+
+Well `ltrace` hasn't helped us very much. Let's try to analyze it like a black box:
+
+    level0@RainFall:~$ ./level0
+    Segmentation fault (core dumped)
+    level0@RainFall:~$ ./level0 23456
+    No !
+    level0@RainFall:~$ ./level0 asdfg
+    No !
+
+So, as we can see, this binary is waiting for some input arguments. Passing even one argument makes it work perfectly. Of course, that's not the behavior we want, because we want to crack it, but at least we know something about our binary at this point.
+
+We should try to debug it using `gdb` utility, shouldn't we?
+
+    (gdb) disas main
+        0x08048ed4 <+20>:	call   0x8049710 <atoi>
+        0x08048ed9 <+25>:	cmp    $0x1a7,%eax
+        0x08048ede <+30>:	jne    0x8048f58 <main+152>
+
+So, it looks like we call `atoi` function with input argument as parameter, and then compare it with hex value of 0x1a7, which is equivalent to the 423 in decimal notation.
+
+Let's try to exploit it by sending 423 as an input argument. Maybe it would work out.
+
+    level0@RainFall:~$ ./level0 423
+    $ whoami
+    level1
+
+And it worked out. Now we cat get the password to the next user by executing the `cat /home/user/level1/.pass`. The flag we've got: `1fe8a524fa4bec01ca4ea2a869af2a02260d4a7d5fe7e7c24d8617e6dca12d3a`

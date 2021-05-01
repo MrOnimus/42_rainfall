@@ -1,0 +1,19 @@
+# What do we exploit?
+
+`printf` vulnerability to the format string attack.
+
+# How do we exploit it?
+
+This level is almost the same as the previous one, except we need the global variable to be equal to 0x1025544. Sadly, we can't pass string that much long directly into binary. Fortunately, we can just pass the padding argument with this length (actually, with `this length-4`, because we need the %n address to fit in).
+
+Knowing all that, we can start cracking this binary. First of all, let's find out, what can we do to get into shell. While debugging a binary file with `gdb` we see several interesting lines of code.
+
+    0x0804848d <+54>:	mov    0x8049810,%eax
+    0x08048492 <+59>:	cmp    $0x1025544,%eax
+    0x08048497 <+64>:	jne    0x80484a5 <n+78>
+
+So, if global variable `m`, which we can find using `info variables`, with address 0x08049810 is equal to 16930116 in decimal notation, then shell gets executed. Let's rewrite it's value by using printf `%n` flag, which redirects number of printed characters to the passed address.
+
+    cat <(python -c 'print "\x08\x04\x98\x10"[::-1] + "%16930112d" + "%12$n"') - | ./level4
+
+Execution of this function gets us the password from the next level: `0f99ba5e9c446258a69b290407a6c60859e9c2d25b26575cafc9ae6d75e9456a`.

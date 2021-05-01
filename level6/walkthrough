@@ -1,4 +1,15 @@
-./level6 $(python -c 'print "A"*72')
-Segfault
+# What do we exploit?
 
-./level6 $(python -c 'print "A"*72 + "\x08\x04\x84\x54"[::-1]')
+Heap overflow in insecure `strcpy` function.
+
+# How do we exploit it?
+
+Let's make it short and simple. `strcpy` is vulnerable. We have two consequently malloced variables here. By overflowing the first, which depends on the passed arguments, we can change the content of the second, which is basically a link to a function `m`. We're not interested in function `m` at all, but we're VERY interested in function `n`, because it has `system` call.
+
+So, we can check the size of the first function using the [tool](https://projects.jason-rush.com/tools/buffer-overflow-eip-offset-string-generator/) we've already used. The calculated offset is, again, 72. So, we can write 72 bytes of like anything, and then 4 bytes of address of the `n` function.
+
+Let's form the exploit command:
+
+    ./level6 $(python -c 'print "A"*72 + "\x08\x04\x84\x54"[::-1]')
+
+Running it instantly gets us the password to the next level: `f73dcb7a06f60e3ccc608990b0a046359d42a1a0489ffeefd0d9cb2d7c9cb82d`.
